@@ -10,7 +10,8 @@ return new class extends Migration
     {
         Schema::create('skills', function (Blueprint $table) {
             $table->id();
-            $table->string('skill_name');
+            $table->string('name')->unique(); // Skill name
+            $table->text('description')->nullable(); // Optional description
             $table->timestamps();
         });
     }
@@ -20,4 +21,3 @@ return new class extends Migration
         Schema::dropIfExists('skills');
     }
 };
-

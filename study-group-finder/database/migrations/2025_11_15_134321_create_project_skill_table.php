@@ -10,12 +10,8 @@ return new class extends Migration
     {
         Schema::create('project_skill', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('project_id')
-                ->constrained('projects')
-                ->onDelete('cascade');
-            $table->foreignId('skill_id')
-                ->constrained('skills')
-                ->onDelete('cascade');
+            $table->foreignId('project_request_id')->constrained()->cascadeOnDelete();
+            $table->foreignId('skill_id')->constrained()->cascadeOnDelete();
             $table->timestamps();
         });
     }

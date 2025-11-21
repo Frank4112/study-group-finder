@@ -10,12 +10,10 @@ return new class extends Migration
     {
         Schema::create('projects', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')
-                ->constrained('users')
-                ->onDelete('cascade');
             $table->string('title');
             $table->text('description')->nullable();
-            $table->string('category')->nullable();
+            $table->foreignId('created_by')->constrained('users')->cascadeOnDelete();
+            $table->enum('status', ['pending', 'active', 'completed'])->default('pending');
             $table->timestamps();
         });
     }
