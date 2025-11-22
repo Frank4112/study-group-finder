@@ -16,25 +16,25 @@ class AuthController extends Controller
 
     public function register(Request $request)
     {
-        $request->validate([
-            'name'          => ['required', 'string', 'max:255'],
-            'email'         => ['required', 'email', 'unique:users,email'],
-            'password'      => ['required', 'confirmed', 'min:6'],
-            'major'         => ['required', 'string', 'max:255'],
-            'year_of_study' => ['required', 'string', 'max:50'],  // or integer if you prefer
+        $data = $request->validate([
+            'name'           => 'required|string|max:255',
+            'email'          => 'required|email|unique:users,email',
+            'major'          => 'required|string',
+            'year_of_study'  => 'required|string',
+            'password'       => 'required|min:6|confirmed',
         ]);
 
-        $user = User::create([
-            'name'          => $request->name,
-            'email'         => $request->email,
-            'password'      => Hash::make($request->password),
-            'major'         => $request->major,
-            'year_of_study' => $request->year_of_study,
+        $user = \App\Models\User::create([
+            'name'          => $data['name'],
+            'email'         => $data['email'],
+            'major'         => $data['major'],
+            'year_of_study' => $data['year_of_study'],
+            'password'      => bcrypt($data['password']),
         ]);
 
         Auth::login($user);
 
-        return redirect('/')->with('success', 'Account created successfully.');
+        return redirect()->route('dashboard');
     }
 
     public function showLogin()
@@ -45,29 +45,30 @@ class AuthController extends Controller
     public function login(Request $request)
     {
         $credentials = $request->validate([
-            'email'    => ['required', 'email'],
-            'password' => ['required'],
+            'email'    => 'required|email',
+            'password' => 'required',
         ]);
 
-        // simple login (no "remember me" for now)
         if (Auth::attempt($credentials)) {
             $request->session()->regenerate();
 
-            return redirect('/')->with('success', 'Logged in successfully.');
+            // redirect to dashboard instead of back()
+            return redirect()
+                ->route('dashboard.index')   // use the correct route name
+                ->with('success', 'Logged in successfully.');
         }
 
-        return back()
-            ->withErrors(['email' => 'The provided credentials do not match our records.'])
-            ->onlyInput('email');
+        return back()->withErrors([
+            'email' => 'Invalid credentials.',
+        ])->onlyInput('email');
     }
 
     public function logout(Request $request)
     {
         Auth::logout();
-
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return redirect('/')->with('success', 'Logged out successfully.');
+        return redirect('/login');
     }
 }
