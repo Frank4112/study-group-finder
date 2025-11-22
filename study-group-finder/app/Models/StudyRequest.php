@@ -14,7 +14,13 @@ class StudyRequest extends Model
         'subject',
         'course',
         'level',
-        'description'
+        'description',
+        'location',
+        'preferred_time',
+    ];
+
+    protected $casts = [
+        'preferred_time' => 'datetime',
     ];
 
     public function user()

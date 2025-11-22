@@ -14,7 +14,7 @@ class StudyRequestFactory extends Factory
         return [
             'subject' => $this->faker->randomElement(['Math','Programming','Networks']),
             'course' => $this->faker->randomElement(['CS','IT','SE']),
-            'level' => $this->faker->randomElement(['Year 1','Year 2','Year 3']),
+            'level' => $this->faker->randomElement(['Year 1','Year 2','Year 3','Year 4']),
             'description' => $this->faker->sentence(),
         ];
     }

@@ -13,7 +13,7 @@ return new class extends Migration
             $table->foreignId('user_id')->constrained()->cascadeOnDelete();
 
             $table->string('subject');               // e.g. "Laravel", "Math", "Biology"
-            $table->enum('level', ['beginner', 'intermediate', 'advanced']);
+            $table->enum('level', ['first_year', 'second_year', 'third_year', 'fourth_year']);
             $table->text('description')->nullable(); // optional longer detail
             $table->string('location')->nullable();  // online / Nairobi / Eldoret etc.
             $table->dateTime('preferred_time')->nullable();

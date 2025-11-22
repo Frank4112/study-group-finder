@@ -14,10 +14,15 @@ class UpdateStudyRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'course_name'    => ['sometimes', 'required', 'string', 'max:100'],
-            'topic'          => ['sometimes', 'required', 'string', 'max:150'],
-            'message'        => ['sometimes', 'nullable', 'string', 'max:500'],
-            'preferred_time' => ['sometimes', 'nullable', 'string', 'max:100'],
+            'subject'        => 'required|string|max:255',
+            'course'         => 'required|string|max:255',
+
+            // Updated levels
+            'level'          => 'required|in:first_year,second_year,third_year,fourth_year',
+
+            'description'    => 'nullable|string',
+            'location'       => 'nullable|string|max:255',
+            'preferred_time' => 'nullable|date',
         ];
     }
 }
