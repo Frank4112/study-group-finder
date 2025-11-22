@@ -3,9 +3,15 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Models\ProjectRequest;
+use App\Http\Requests\StoreProjectRequest;
+use App\Http\Requests\UpdateProjectRequest;
+
+use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 
 class ProjectRequestsController extends Controller
 {
+    use AuthorizesRequests;
     /**
      * Display a listing of the resource.
      */
@@ -27,9 +33,27 @@ class ProjectRequestsController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(StoreProjectRequest $request)
     {
-        //
+        $this->authorize('create', ProjectRequest::class);
+
+        $data = $request->validated();
+
+        $project = ProjectRequest::create([
+            // adjust to your columns
+            'title'       => $data['title'],
+            'description' => $data['description'],
+            'location'    => $data['location'] ?? null,
+            'meeting_time'=> $data['meeting_time'] ?? null,
+            'max_members' => $data['max_members'] ?? null,
+            'user_id'     => \Illuminate\Support\Facades\Auth::user()->id,
+        ]);
+
+        if (!empty($data['skills'])) {
+            $project->skills()->sync($data['skills']);
+        }
+
+        return redirect()->back()->with('success', 'Project created successfully.');
     }
 
     /**
@@ -43,24 +67,39 @@ class ProjectRequestsController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(string $id)
+    public function edit(ProjectRequest $projectRequest)
     {
-        //
+        $this->authorize('update', $projectRequest);
+
+        // return view with $projectRequest
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(UpdateProjectRequest $request, ProjectRequest $projectRequest)
     {
-        //
+        $this->authorize('update', $projectRequest);
+
+        $data = $request->validated();
+        $projectRequest->update($data);
+
+        if (isset($data['skills'])) {
+            $projectRequest->skills()->sync($data['skills']);
+        }
+
+        return redirect()->back()->with('success', 'Project updated successfully.');
     }
 
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(ProjectRequest $projectRequest)
     {
-        //
+        $this->authorize('delete', $projectRequest);
+
+        $projectRequest->delete();
+
+        return redirect()->back()->with('success', 'Project deleted successfully.');
     }
 }
