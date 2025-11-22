@@ -6,18 +6,28 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\StudyRequest;
 use App\Models\ProjectRequest;
+use Illuminate\Routing\Controller as BaseController;
 
-class DashboardController extends Controller
+class DashboardController extends BaseController
 {
+    public function __construct()
+    {
+        // Only logged-in users can access dashboard
+        $this->middleware('auth');
+    }
+
     public function index()
     {
-        $totalUsers = User::count();
-        $activeStudyRequests = StudyRequest::count();
-        $activeProjects = ProjectRequest::count();
-        $recentRequests = StudyRequest::latest()->take(5)->get();
+        $user = \Illuminate\Support\Facades\Auth::user();
 
-        return view('dashboard.index', compact(
-            'totalUsers', 'activeStudyRequests', 'activeProjects', 'recentRequests'
-        ));
+        // Adjust model names if yours are different
+        $myProjectsCount = ProjectRequest::where('user_id', $user->id)->count();
+        $myStudiesCount  = StudyRequest::where('user_id', $user->id)->count();
+
+        return view('dashboard', [
+            'user'            => $user,
+            'myProjectsCount' => $myProjectsCount,
+            'myStudiesCount'  => $myStudiesCount,
+        ]);
     }
 }
