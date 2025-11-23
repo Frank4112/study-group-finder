@@ -3,50 +3,51 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
-use App\Models\User;
 use App\Models\Project;
+use App\Models\User;
 
 class ProjectsSeeder extends Seeder
 {
     public function run(): void
     {
-        // Get first 5 users
-        $users = User::take(5)->get();
-
-        if ($users->count() < 1) {
-            $this->command->info('No users found. Seed users first.');
-            return;
-        }
+        // Use random existing users
+        $userIds = User::pluck('id')->toArray();
 
         $projects = [
             [
                 'title' => 'Math Study Group',
-                'description' => 'Practice and solve calculus problems',
-                'status' => 'active',
+                'description' => 'Group for advanced calculus work.',
+                'category' => 'Mathematics',
             ],
             [
-                'title' => 'Physics Project',
-                'description' => 'Thermodynamics experiments',
-                'status' => 'active',
+                'title' => 'Web Development Series',
+                'description' => 'Learning Laravel, Vue, and APIs.',
+                'category' => 'Web Development',
             ],
             [
-                'title' => 'History Revision',
-                'description' => 'Group to prepare for history exams',
-                'status' => 'active',
+                'title' => 'Database Research Project',
+                'description' => 'Exploring SQL optimization techniques.',
+                'category' => 'Databases',
+            ],
+            [
+                'title' => 'AI & Machine Learning',
+                'description' => 'Group for ML beginners and intermediate learners.',
+                'category' => 'AI',
+            ],
+            [
+                'title' => 'Cybersecurity Lab',
+                'description' => 'Hands-on ethical hacking practice.',
+                'category' => 'Cybersecurity',
             ],
         ];
 
-        foreach ($projects as $index => $project) {
-            $user = $users[$index % $users->count()]; // Assign projects to existing users in round-robin
-            Project::updateOrCreate(
-                [
-                    'title' => $project['title'],
-                    'created_by' => $user->id
-                ],
-                $project + ['created_by' => $user->id]
-            );
+        foreach ($projects as $proj) {
+            Project::create([
+                'user_id'     => $userIds[array_rand($userIds)], // FIXED
+                'title'       => $proj['title'],
+                'description' => $proj['description'],
+                'category'    => $proj['category'],
+            ]);
         }
-
-        $this->command->info('Projects seeded successfully.');
     }
 }

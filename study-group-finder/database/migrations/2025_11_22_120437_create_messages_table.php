@@ -10,19 +10,30 @@ return new class extends Migration
      * Run the migrations.
      */
     public function up(): void
-{
-    Schema::create('messages', function (Blueprint $table) {
-        $table->id();
-        $table->foreignId('conversation_id')->constrained()->onDelete('cascade');
-        $table->foreignId('sender_id')->constrained('users')->onDelete('cascade');
-        $table->text('body');
-        $table->timestamps();
-    });
-}
+    {
+        Schema::create('messages', function (Blueprint $table) {
+            $table->id();
 
-public function down(): void
-{
-    Schema::dropIfExists('messages');
-}
+            // FK: message belongs to study group
+            $table->foreignId('study_group_id')
+                  ->constrained('study_groups')
+                  ->onDelete('cascade');
 
+            // FK: who sent the message
+            $table->foreignId('sender_id')
+                  ->constrained('users')
+                  ->onDelete('cascade');
+
+            $table->text('body');
+            $table->timestamps();
+        });
+    }
+
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::dropIfExists('messages');
+    }
 };

@@ -14,13 +14,13 @@ class UpdateProjectRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'title'        => ['sometimes', 'required', 'string', 'max:100'],
-            'description'  => ['sometimes', 'required', 'string', 'min:10'],
-            'location'     => ['sometimes', 'nullable', 'string', 'max:100'],
-            'meeting_time' => ['sometimes', 'nullable', 'string', 'max:100'],
-            'max_members'  => ['sometimes', 'nullable', 'integer', 'min:1'],
-            'skills'       => ['sometimes', 'array'],
-            'skills.*'     => ['integer', 'exists:skills,id'],
+            'title'           => ['required', 'string', 'max:255'],
+            'description'     => ['nullable', 'string'],
+            'required_skills' => ['nullable', 'string', 'max:255'],
+            'status'          => ['required', 'in:open,closed'],
+            'max_members'     => ['nullable', 'integer', 'min:1'],
+            'location'        => ['nullable', 'string', 'max:255'],
+            'meeting_time'    => ['nullable', 'date_format:H:i'],
         ];
     }
 }
