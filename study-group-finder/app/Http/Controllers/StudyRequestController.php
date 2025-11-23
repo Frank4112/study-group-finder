@@ -8,7 +8,6 @@ use App\Http\Requests\UpdateStudyRequest;
 use App\Services\StudyMatchService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
-use Illuminate\Http\Request;
 use Illuminate\Routing\Controller;
 
 class StudyRequestController extends Controller
@@ -21,7 +20,7 @@ class StudyRequestController extends Controller
     }
 
     /**
-     * Main listing page — Livewire handles table.
+     * Main listing page — Livewire table handles rendering.
      */
     public function index()
     {
@@ -37,14 +36,15 @@ class StudyRequestController extends Controller
     }
 
     /**
-     * Store study request.
+     * Store request + auto-match + auto-group creation.
      */
-    public function store(StoreStudyRequest $request)
+    public function store(StoreStudyRequest $request, StudyMatchService $matcher)
     {
         $this->authorize('create', StudyRequest::class);
 
         $data = $request->validated();
 
+        // Save study request
         $studyRequest = StudyRequest::create([
             'subject'        => $data['subject'],
             'course'         => $data['course'],
@@ -58,13 +58,24 @@ class StudyRequestController extends Controller
         // Gamification
         Auth::user()->incrementPoints(5);
 
+        // AUTO MATCHING + AUTO GROUP CREATION
+        $group = $matcher->createGroupFromRequest($studyRequest);
+
+        // If a group is formed successfully
+        if ($group) {
+            return redirect()
+                ->route('study-groups.show', $group->id)
+                ->with('success', 'Study request created — matching study group was created automatically!');
+        }
+
+        // If no matching partners found
         return redirect()
             ->route('study-requests.index')
-            ->with('success', 'Study request created successfully.');
+            ->with('success', 'Study request created — no matching partners yet.');
     }
 
     /**
-     * View a single request.
+     * View a specific request.
      */
     public function show(StudyRequest $studyRequest)
     {
@@ -74,7 +85,7 @@ class StudyRequestController extends Controller
     }
 
     /**
-     * Edit form.
+     * Show edit form.
      */
     public function edit(StudyRequest $studyRequest)
     {
@@ -84,7 +95,7 @@ class StudyRequestController extends Controller
     }
 
     /**
-     * Update request.
+     * Update study request.
      */
     public function update(UpdateStudyRequest $request, StudyRequest $studyRequest)
     {
@@ -112,7 +123,7 @@ class StudyRequestController extends Controller
     }
 
     /**
-     * Match + group creation.
+     * Manual group creation from matches (optional).
      */
     public function createGroupFromMatches(StudyRequest $studyRequest, StudyMatchService $matcher)
     {
@@ -129,4 +140,3 @@ class StudyRequestController extends Controller
             ->with('success', 'Study group created successfully.');
     }
 }
-

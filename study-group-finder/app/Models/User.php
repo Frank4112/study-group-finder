@@ -101,8 +101,5 @@ class User extends Authenticatable
         return $this->hasMany(\App\Models\ProjectRequest::class);
     }
 
-    public function studyRequests()
-    {
-        return $this->hasMany(\App\Models\StudyRequest::class);
-    }
+  
 }
