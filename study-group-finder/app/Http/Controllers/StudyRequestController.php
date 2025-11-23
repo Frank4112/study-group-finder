@@ -129,3 +129,4 @@ class StudyRequestController extends Controller
             ->with('success', 'Study group created successfully.');
     }
 }
+
