@@ -5,101 +5,83 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\ProjectRequest;
 use App\Http\Requests\StoreProjectRequest;
-use App\Http\Requests\UpdateProjectRequest;
-
-use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
+use Illuminate\Support\Facades\Auth;
 
 class ProjectRequestsController extends Controller
 {
-    use AuthorizesRequests;
-    /**
-     * Display a listing of the resource.
-     */
+    public function __construct()
+    {
+        $this->middleware('auth');
+    }
+
+    // Display all project requests
     public function index()
-{
-    $projectRequests = \App\Models\ProjectRequest::with(['user', 'skills'])->orderBy('id', 'desc')->paginate(10);
-    return view('project_requests.index', compact('projectRequests'));
-}
+    {
+        $projectRequests = ProjectRequest::with('user')
+            ->orderBy('id', 'desc')
+            ->paginate(10);
 
+        return view('project_requests.index', compact('projectRequests'));
+    }
 
-    /**
-     * Show the form for creating a new resource.
-     */
+    // Show create form
     public function create()
     {
-        //
+        return view('project_requests.create');
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
+    // Store a new project request
     public function store(StoreProjectRequest $request)
     {
-        $this->authorize('create', ProjectRequest::class);
-
         $data = $request->validated();
+        $data['user_id'] = Auth::id();
 
-        $project = ProjectRequest::create([
-            // adjust to your columns
-            'title'       => $data['title'],
-            'description' => $data['description'],
-            'location'    => $data['location'] ?? null,
-            'meeting_time'=> $data['meeting_time'] ?? null,
-            'max_members' => $data['max_members'] ?? null,
-            'user_id'     => \Illuminate\Support\Facades\Auth::user()->id,
-        ]);
+        ProjectRequest::create($data);
 
-        if (!empty($data['skills'])) {
-            $project->skills()->sync($data['skills']);
-        }
-
-        return redirect()->back()->with('success', 'Project created successfully.');
+        return redirect()->route('project-requests.index')
+                         ->with('success', 'Project request created successfully.');
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(string $id)
+    // Show a single project request
+    public function show(ProjectRequest $projectRequest)
     {
-        //
+        return view('project_requests.show', compact('projectRequest'));
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(ProjectRequest $projectRequest)
-    {
-        $this->authorize('update', $projectRequest);
-
-        // return view with $projectRequest
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(UpdateProjectRequest $request, ProjectRequest $projectRequest)
-    {
-        $this->authorize('update', $projectRequest);
-
-        $data = $request->validated();
-        $projectRequest->update($data);
-
-        if (isset($data['skills'])) {
-            $projectRequest->skills()->sync($data['skills']);
-        }
-
-        return redirect()->back()->with('success', 'Project updated successfully.');
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
+    // Delete a project request
     public function destroy(ProjectRequest $projectRequest)
     {
-        $this->authorize('delete', $projectRequest);
+        // Only owner can delete
+        if (Auth::id() !== $projectRequest->user_id) {
+            abort(403);
+        }
 
         $projectRequest->delete();
 
-        return redirect()->back()->with('success', 'Project deleted successfully.');
+        return redirect()->route('project-requests.index')
+                         ->with('success', 'Project request deleted successfully.');
     }
+
+    // Like / Accept a project request
+
+public function like(ProjectRequest $projectRequest)
+{
+    $user = Auth::user();
+
+    if ($projectRequest->likedBy($user)) {
+        // Unaccept: remove like and deduct points
+        $projectRequest->likes()->detach($user->id);
+        $user->decrement('points', 5); // adjust points as needed
+
+        return redirect()->back()->with('success', 'Project request unaccepted, points removed.');
+    }
+
+    // Accept: add like and give points
+    $projectRequest->likes()->attach($user->id);
+    $user->increment('points', 5);
+
+    return redirect()->back()->with('success', 'Project request accepted, points added!');
 }
+
+}
+

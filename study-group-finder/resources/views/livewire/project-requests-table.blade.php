@@ -112,26 +112,34 @@
                             <td>{{ $pr->user->name ?? 'Unknown' }}</td>
 
                             <td class="text-center">
+                                {{-- View --}}
                                 <a href="{{ route('project-requests.show', $pr->id) }}"
                                    class="btn btn-sm btn-primary" title="View">
                                     <i class="fas fa-eye"></i>
                                 </a>
 
-                                <a href="{{ route('project-requests.edit', $pr->id) }}"
-                                   class="btn btn-sm btn-warning" title="Edit">
-                                    <i class="fas fa-edit"></i>
-                                </a>
+                                {{-- Like / Accept --}}
+<button wire:click="like({{ $pr->id }})"
+        class="btn btn-sm {{ $pr->likes()->where('user_id', auth()->id())->exists() ? 'btn-danger' : 'btn-success' }}"
+        title="{{ $pr->likes()->where('user_id', auth()->id())->exists() ? 'Unaccept' : 'Accept' }}">
+    <i class="fas fa-thumbs-up"></i>
+    {{ $pr->likes()->count() }}
+</button>
 
-                                <form action="{{ route('project-requests.destroy', $pr->id) }}"
-                                      method="POST"
-                                      class="d-inline"
-                                      onsubmit="return confirm('Delete this project request?')">
-                                    @csrf
-                                    @method('DELETE')
-                                    <button class="btn btn-sm btn-danger" title="Delete">
-                                        <i class="fas fa-trash"></i>
-                                    </button>
-                                </form>
+
+                                {{-- Delete (owner only) --}}
+                                @if(auth()->id() === $pr->user_id)
+                                    <form action="{{ route('project-requests.destroy', $pr->id) }}"
+                                          method="POST"
+                                          class="d-inline"
+                                          onsubmit="return confirm('Delete this project request?')">
+                                        @csrf
+                                        @method('DELETE')
+                                        <button class="btn btn-sm btn-danger" title="Delete">
+                                            <i class="fas fa-trash"></i>
+                                        </button>
+                                    </form>
+                                @endif
                             </td>
                         </tr>
                     @empty

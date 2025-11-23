@@ -4,7 +4,6 @@ use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\ProjectController;
-use App\Http\Controllers\ProjectRequestController;
 use App\Http\Controllers\StudyRequestController;
 use App\Http\Controllers\SkillController;
 use App\Http\Controllers\ProfileController;
@@ -18,6 +17,7 @@ use App\Http\Controllers\MessageController;
 
 use App\Http\Controllers\ProjectsController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
+use App\Http\Controllers\ProjectRequestsController;
 
 /*
 |--------------------------------------------------------------------------
@@ -102,7 +102,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
     | Projects & Skills CRUD
     |--------------------------------------------------------------------------
     */
-    Route::resource('project-requests', ProjectRequestController::class);
+    Route::resource('project-requests', ProjectRequestsController::class)
+      ->except(['edit', 'update']);
+
     Route::resource('projects', ProjectsController::class);
     Route::resource('skills', SkillController::class);
 
@@ -184,4 +186,8 @@ Route::middleware(['auth', 'verified'])->group(function () {
     */
     Route::post('/logout', [AuthenticatedSessionController::class, 'destroy'])
         ->name('logout');
+
+        Route::post('project-requests/{projectRequest}/like', [ProjectRequestsController::class, 'like'])
+     ->name('project-requests.like');
+
 });
