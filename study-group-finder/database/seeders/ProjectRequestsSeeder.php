@@ -3,65 +3,54 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
-use App\Models\User;
 use App\Models\ProjectRequest;
+use App\Models\User;
 
 class ProjectRequestsSeeder extends Seeder
 {
     public function run(): void
     {
-        // Get first 5 users
-        $users = User::take(5)->get();
-
-        if ($users->count() < 5) {
-            $this->command->info('Not enough users in the database. Seed users first.');
-            return;
-        }
-
-        $projects = [
-            [
-                'title' => 'Math Study Group',
-                'description' => 'Group for Calculus I practice',
-                'required_skills' => 'Mathematics',
-                'status' => 'open',
-            ],
-            [
-                'title' => 'Physics Project',
-                'description' => 'Thermodynamics experiment',
-                'required_skills' => 'Physics',
-                'status' => 'open',
-            ],
-            [
-                'title' => 'History Revision Group',
-                'description' => 'Prepare for exams',
-                'required_skills' => 'History',
-                'status' => 'open',
-            ],
-            [
-                'title' => 'Chemistry Lab Group',
-                'description' => 'Organic chemistry practice',
-                'required_skills' => 'Chemistry',
-                'status' => 'open',
-            ],
-            [
-                'title' => 'English Essay Group',
-                'description' => 'Improve essay writing',
-                'required_skills' => 'English',
-                'status' => 'open',
-            ],
+        $titles = [
+            'Web Development Team',
+            'Mobile App Project',
+            'Machine Learning Research',
+            'Cyber Security Study Group',
+            'Database Optimization Project',
+            'Networking Lab Team',
+            'AI Chatbot Project',
+            'Cloud Computing Research',
+            'Robotics Group',
+            'Software Engineering Capstone'
         ];
 
-        foreach ($projects as $index => $project) {
-            ProjectRequest::updateOrCreate(
-                [
-                    'user_id' => $users[$index]->id,
-                    'title' => $project['title']
-                ],
-                $project + ['user_id' => $users[$index]->id]
-            );
-        }
+        $skills = [
+            'Python', 'Laravel', 'Django', 'Flutter', 'React',
+            'Java', 'C++', 'MySQL', 'Networking', 'Cybersecurity'
+        ];
 
-        $this->command->info('Project requests seeded successfully.');
+        $locations = [
+            'Library Room 5', 'Engineering Lab', 'ICT Basement',
+            'Online (Google Meet)', 'Main Campus Auditorium'
+        ];
+
+        $users = User::pluck('id')->toArray();
+
+        for ($i = 0; $i < 50; $i++) {
+
+            // Safe random skill selection
+            $skillCount = rand(1, 4);
+            $selectedSkills = collect($skills)->random($skillCount)->implode(', ');
+
+            ProjectRequest::create([
+                'user_id'         => $users[array_rand($users)],
+                'title'           => $titles[array_rand($titles)],
+                'description'     => fake()->paragraph(),
+                'required_skills' => $selectedSkills,
+                'status'          => ['open', 'closed'][rand(0, 1)],
+                'location'        => $locations[array_rand($locations)],
+                'meeting_time'    => now()->addDays(rand(1, 10))->setTime(rand(8, 17), 0),
+                'max_members'     => rand(2, 8),
+            ]);
+        }
     }
 }
-

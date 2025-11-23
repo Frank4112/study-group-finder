@@ -6,18 +6,30 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-    public function up(): void
-    {
-        Schema::table('study_requests', function (Blueprint $table) {
+    public function up()
+{
+    Schema::table('study_requests', function (Blueprint $table) {
+        if (!Schema::hasColumn('study_requests', 'location')) {
             $table->string('location')->nullable()->after('description');
-            $table->timestamp('preferred_time')->nullable()->after('location');
-        });
-    }
+        }
 
-    public function down(): void
-    {
-        Schema::table('study_requests', function (Blueprint $table) {
-            $table->dropColumn(['location', 'preferred_time']);
-        });
-    }
+        if (!Schema::hasColumn('study_requests', 'preferred_time')) {
+            $table->dateTime('preferred_time')->nullable()->after('location');
+        }
+    });
+}
+
+    public function down()
+{
+    Schema::table('study_requests', function (Blueprint $table) {
+        if (Schema::hasColumn('study_requests', 'location')) {
+            $table->dropColumn('location');
+        }
+
+        if (Schema::hasColumn('study_requests', 'preferred_time')) {
+            $table->dropColumn('preferred_time');
+        }
+    });
+}
+
 };
