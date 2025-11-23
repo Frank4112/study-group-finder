@@ -32,7 +32,8 @@ class StudyRequestController extends Controller
      */
     public function create()
     {
-        return view('study_requests.create');
+        $skills = \App\Models\Skill::all();
+        return view('study_requests.create', compact('skills'));
     }
 
     /**
@@ -55,6 +56,19 @@ class StudyRequestController extends Controller
             'user_id'        => Auth::id(),
         ]);
 
+        if ($request->has('skills')) {
+    foreach ($request->input('skills') as $skillName) {
+        \App\Models\SkillRequest::create([
+            'user_id'    => Auth::id(),
+            'skill_name' => $skillName,
+            'experience' => $request->input("experience.$skillName"), // 1-4 years
+            'details'    => $request->input('description') ?? null,
+            'description'=> $request->input('description') ?? null,
+        ]);
+    }
+}
+
+
         // Gamification
         Auth::user()->incrementPoints(5);
 
@@ -62,18 +76,23 @@ class StudyRequestController extends Controller
         $group = $matcher->createGroupFromRequest($studyRequest);
 
         // If a group is formed successfully
-        if ($group) {
-            return redirect()
-                ->route('study-groups.show', $group->id)
-                ->with('success', 'Study request created — matching study group was created automatically!');
-        }
+       // AUTO MATCHING + AUTO GROUP CREATION
+$group = $matcher->createGroupFromRequest($studyRequest);
 
-        // If no matching partners found
-        return redirect()
-            ->route('study-requests.index')
-            ->with('success', 'Study request created — no matching partners yet.');
+// Only redirect if group exists AND contains at least 2 members
+if ($group && $group->users()->count() > 1) {
+    return redirect()
+        ->route('study-requests.index')
+        ->with('group_created', $group->id)
+        ->with('success', 'Study request created successfully! A matching study group was created.');
+}
+
+// otherwise return normally
+return redirect()
+    ->route('study-requests.index')
+    ->with('success', 'Study request created successfully!');
+
     }
-
     /**
      * View a specific request.
      */
