@@ -18,7 +18,7 @@ class MessageController extends Controller
 
         Message::create([
             'study_group_id' => $studyGroup->id,
-            'user_id'        => Auth::id(),
+            'sender_id'        => Auth::id(),
             'body'           => $data['body'],
         ]);
 

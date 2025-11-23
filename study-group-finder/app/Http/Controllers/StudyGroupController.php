@@ -42,4 +42,17 @@ class StudyGroupController extends Controller
 
         return back()->with('success', 'You left the study group.');
     }
+    public function myGroups()
+{
+    $groups = auth()->user()
+        ->studyGroups()
+        ->with('creator')
+        ->withCount('members')
+        ->orderBy('created_at', 'desc')
+        ->get();
+
+    return view('study_groups.my_groups', compact('groups'));
+}
+
+    
 }
