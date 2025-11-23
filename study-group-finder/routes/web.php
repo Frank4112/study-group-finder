@@ -25,9 +25,12 @@ use App\Http\Controllers\Auth\AuthenticatedSessionController;
 |--------------------------------------------------------------------------
 */
 
-Route::get('/', function () {
-    return view('auth.login');
-});
+Route::get('/home', function () {
+    return view('home');
+})->name('home');
+
+Route::get('/', fn() => redirect()->route('home'));
+
 
 // Breeze authentication routes
 require __DIR__.'/auth.php';
