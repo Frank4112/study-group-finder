@@ -42,4 +42,5 @@ class StudyGroupController extends Controller
 
         return back()->with('success', 'You left the study group.');
     }
+    
 }

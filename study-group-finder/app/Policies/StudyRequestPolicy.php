@@ -7,10 +7,8 @@ use App\Models\User;
 
 class StudyRequestPolicy
 {
-<<<<<<< HEAD
-=======
     /**
-     * Determine if the authenticated user can view any study requests.
+     * Allow anyone (even guests) to view the list.
      */
     public function viewAny(?User $user): bool
     {
@@ -18,7 +16,7 @@ class StudyRequestPolicy
     }
 
     /**
-     * Determine if the authenticated user can view the specific study request.
+     * Allow anyone (even guests) to view a study request.
      */
     public function view(?User $user, StudyRequest $studyRequest): bool
     {
@@ -26,7 +24,7 @@ class StudyRequestPolicy
     }
 
     /**
-     * Determine if the authenticated user can create study requests.
+     * Only authenticated users can create a study request.
      */
     public function create(User $user): bool
     {
@@ -34,28 +32,18 @@ class StudyRequestPolicy
     }
 
     /**
-     * Determine if the authenticated user can update the study request.
+     * Only the owner can update.
      */
->>>>>>> 12128b6b584caabd080280544b6408a18850395d
     public function update(User $user, StudyRequest $studyRequest): bool
     {
         return $user->id === $studyRequest->user_id;
     }
 
-<<<<<<< HEAD
-=======
     /**
-     * Determine if the authenticated user can delete the study request.
+     * Only the owner can delete.
      */
->>>>>>> 12128b6b584caabd080280544b6408a18850395d
     public function delete(User $user, StudyRequest $studyRequest): bool
     {
         return $user->id === $studyRequest->user_id;
     }
-   public function view(User $user, StudyRequest $request)
-    {
-        // All authenticated users can view study requests
-        return true;
-    }
-
 }
