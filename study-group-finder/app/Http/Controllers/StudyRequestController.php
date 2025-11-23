@@ -8,19 +8,28 @@ use App\Http\Requests\UpdateStudyRequest;
 use App\Services\StudyMatchService;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
-
+use Illuminate\Http\Request;
+use Illuminate\Routing\Controller;
 
 class StudyRequestController extends Controller
 {
     use AuthorizesRequests;
-    
+
+    public function __construct()
+    {
+        $this->middleware('auth');
+    }
+
+    /**
+     * Main listing page — Livewire handles table.
+     */
     public function index()
     {
         return view('study_requests.index');
     }
 
     /**
-     * Show form for creating a new study request.
+     * Show form for creating a study request.
      */
     public function create()
     {
@@ -28,10 +37,12 @@ class StudyRequestController extends Controller
     }
 
     /**
-     * Store a new study request.
+     * Store study request.
      */
     public function store(StoreStudyRequest $request)
     {
+        $this->authorize('create', StudyRequest::class);
+
         $data = $request->validated();
 
         $studyRequest = StudyRequest::create([
@@ -44,8 +55,8 @@ class StudyRequestController extends Controller
             'user_id'        => Auth::id(),
         ]);
 
-        // Gamification: reward the user for participation
-        Auth::user()->incrementPoints('study_requests_count');
+        // Gamification
+        Auth::user()->incrementPoints(5);
 
         return redirect()
             ->route('study-requests.index')
@@ -53,7 +64,7 @@ class StudyRequestController extends Controller
     }
 
     /**
-     * Show a single study request.
+     * View a single request.
      */
     public function show(StudyRequest $studyRequest)
     {
@@ -63,7 +74,7 @@ class StudyRequestController extends Controller
     }
 
     /**
-     * Show the edit form.
+     * Edit form.
      */
     public function edit(StudyRequest $studyRequest)
     {
@@ -73,7 +84,7 @@ class StudyRequestController extends Controller
     }
 
     /**
-     * Update a study request.
+     * Update request.
      */
     public function update(UpdateStudyRequest $request, StudyRequest $studyRequest)
     {
@@ -87,7 +98,7 @@ class StudyRequestController extends Controller
     }
 
     /**
-     * Delete a study request.
+     * Delete request.
      */
     public function destroy(StudyRequest $studyRequest)
     {
@@ -101,7 +112,7 @@ class StudyRequestController extends Controller
     }
 
     /**
-     * Generates a study group based on matching requests.
+     * Match + group creation.
      */
     public function createGroupFromMatches(StudyRequest $studyRequest, StudyMatchService $matcher)
     {
@@ -115,6 +126,6 @@ class StudyRequestController extends Controller
 
         return redirect()
             ->route('study-groups.show', $group->id)
-            ->with('success', 'Study group created successfully from matches.');
+            ->with('success', 'Study group created successfully.');
     }
 }

@@ -95,4 +95,14 @@ class User extends Authenticatable
             'study_group_id'
         );
     }
+
+    public function projectRequests()
+    {
+        return $this->hasMany(\App\Models\ProjectRequest::class);
+    }
+
+    public function studyRequests()
+    {
+        return $this->hasMany(\App\Models\StudyRequest::class);
+    }
 }
