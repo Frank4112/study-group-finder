@@ -5,69 +5,73 @@ namespace App\Http\Controllers;
 use App\Models\ProjectRequest;
 use App\Http\Requests\StoreProjectRequest;
 use App\Http\Requests\UpdateProjectRequest;
-use App\Models\Skill;
-
-use Illuminate\Foundation\Auth\Access\AuthorizesRequests;
 use Illuminate\Support\Facades\Auth;
+use App\Http\Controllers\Controller;
+
 
 class ProjectRequestController extends Controller
 {
-    use AuthorizesRequests;
+    public function __construct()
+    {
+        $this->middleware('auth');
+    }
+
+    // Index – Livewire table
     public function index()
     {
-        return ProjectRequest::with('user')->paginate(10);
+        return view('project_requests.index');
     }
 
+    // Create form
+    public function create()
+    {
+        return view('project_requests.create');
+    }
+
+    // Store
     public function store(StoreProjectRequest $request)
     {
-        // safe validated input
         $data = $request->validated();
+        $data['user_id'] = Auth::id();
 
-        $project = ProjectRequest::create([
-            'title'        => $data['title'],
-            'description'  => $data['description'],
-            'location'     => $data['location'] ?? null,
-            'meeting_time' => $data['meeting_time'] ?? null,
-            'max_members'  => $data['max_members'] ?? null,
-            'user_id'      => Auth::id(), // if column exists
-        ]);
+        ProjectRequest::create($data);
 
-        if (!empty($data['skills'])) {
-            $project->skills()->sync($data['skills']);
-        }
+        Auth::user()?->incrementPoints(5);
 
-        return redirect()->back()->with('success', 'Project created successfully.');
+        return redirect()
+            ->route('project-requests.index')
+            ->with('success', 'Project request created successfully.');
     }
 
+    // Show
+    public function show(ProjectRequest $projectRequest)
+    {
+        return view('project_requests.show', compact('projectRequest'));
+    }
+
+    // Edit form
+    public function edit(ProjectRequest $projectRequest)
+    {
+        return view('project_requests.edit', compact('projectRequest'));
+    }
+
+    // Update
     public function update(UpdateProjectRequest $request, ProjectRequest $projectRequest)
     {
-        // ensure only owner can update
-        $this->authorize('update', $projectRequest);
+        $projectRequest->update($request->validated());
 
-        $data = $request->validated();
-
-        $projectRequest->update([
-            'title'        => $data['title']        ?? $projectRequest->title,
-            'description'  => $data['description']  ?? $projectRequest->description,
-            'location'     => $data['location']     ?? $projectRequest->location,
-            'meeting_time' => $data['meeting_time'] ?? $projectRequest->meeting_time,
-            'max_members'  => $data['max_members']  ?? $projectRequest->max_members,
-        ]);
-
-        if (isset($data['skills'])) {
-            $projectRequest->skills()->sync($data['skills']);
-        }
-
-        return redirect()->back()->with('success', 'Project updated successfully.');
+        return redirect()
+            ->route('project-requests.index')
+            ->with('success', 'Project request updated successfully.');
     }
 
+    // Delete
     public function destroy(ProjectRequest $projectRequest)
     {
-        // ensure only owner can delete
-        $this->authorize('delete', $projectRequest);
-
         $projectRequest->delete();
 
-        return response()->json(['message' => 'Deleted']);
+        return redirect()
+            ->route('project-requests.index')
+            ->with('success', 'Project request deleted.');
     }
 }

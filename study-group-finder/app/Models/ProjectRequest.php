@@ -11,14 +11,21 @@ class ProjectRequest extends Model
 
     protected $fillable = [
         'user_id',
-        'project_title',
+        'title',
         'description',
         'required_skills',
-        'difficulty_level'
+        'status',
+        'max_members',
+        'location',
+        'meeting_time',
+    ];
+
+    protected $casts = [
+        'meeting_time' => 'datetime',
     ];
 
     public function user()
     {
-        return $this->belongsTo(\App\Models\User::class);
+        return $this->belongsTo(User::class);
     }
 }

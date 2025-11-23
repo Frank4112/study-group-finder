@@ -1,42 +1,93 @@
-@extends('layouts.sidebar')
+@extends('adminlte::page')
 
-@section('page-title', 'Create Project Request')
+@section('title', 'Create Project Request')
+
+@section('content_header')
+    <h1>Create Project Request</h1>
+@stop
 
 @section('content')
 
-<h2 class="text-xl font-semibold mb-4">Create Project Request</h2>
+<div class="card shadow-sm">
+    <div class="card-body">
 
-<form method="POST" action="{{ route('project-requests.store') }}" class="space-y-4 bg-white p-6 shadow rounded">
-    @csrf
+        @if($errors->any())
+            <div class="alert alert-danger">
+                <strong>There were some problems:</strong>
+                <ul>
+                    @foreach($errors->all() as $err)
+                        <li>{{ $err }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
 
-    <div>
-        <label class="font-semibold">Project Title</label>
-        <input type="text" name="project_title" class="w-full border p-2 rounded" required>
+        <form action="{{ route('project-requests.store') }}" method="POST">
+            @csrf
+
+            <div class="form-group">
+                <label>Title</label>
+                <input type="text"
+                       name="title"
+                       class="form-control"
+                       value="{{ old('title') }}"
+                       required>
+            </div>
+
+            <div class="form-group mt-3">
+                <label>Description</label>
+                <textarea name="description"
+                          class="form-control"
+                          rows="4">{{ old('description') }}</textarea>
+            </div>
+
+            <div class="form-group mt-3">
+                <label>Required Skills</label>
+                <input type="text"
+                       name="required_skills"
+                       class="form-control"
+                       value="{{ old('required_skills') }}">
+            </div>
+
+            <div class="form-group mt-3">
+                <label>Max Members</label>
+                <input type="number"
+                       name="max_members"
+                       class="form-control"
+                       value="{{ old('max_members') }}"
+                       min="1">
+            </div>
+
+            <div class="form-group mt-3">
+                <label>Location</label>
+                <input type="text"
+                       name="location"
+                       class="form-control"
+                       value="{{ old('location') }}">
+            </div>
+
+            <div class="form-group mt-3">
+                <label>Meeting Time</label>
+                <input type="time"
+                       name="meeting_time"
+                       class="form-control"
+                       value="{{ old('meeting_time') }}">
+            </div>
+
+            <div class="form-group mt-3">
+                <label>Status</label>
+                <select name="status" class="form-control" required>
+                    <option value="open"   {{ old('status') == 'open' ? 'selected' : '' }}>Open</option>
+                    <option value="closed" {{ old('status') == 'closed' ? 'selected' : '' }}>Closed</option>
+                </select>
+            </div>
+
+            <button class="btn btn-primary mt-3">
+                <i class="fas fa-save"></i> Save
+            </button>
+        </form>
+
     </div>
+</div>
 
-    <div>
-        <label class="font-semibold">Description</label>
-        <textarea name="description" class="w-full border p-2 rounded"></textarea>
-    </div>
-
-    <div>
-        <label class="font-semibold">Required Skills</label>
-        <input type="text" name="required_skills" class="w-full border p-2 rounded">
-    </div>
-
-    <div>
-        <label class="font-semibold">Difficulty</label>
-        <select name="difficulty_level" class="w-full border p-2 rounded">
-            <option>Easy</option>
-            <option>Medium</option>
-            <option>Hard</option>
-        </select>
-    </div>
-
-    <button class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
-        Save
-    </button>
-
-</form>
-
-@endsection
+@stop

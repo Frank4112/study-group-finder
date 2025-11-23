@@ -1,42 +1,94 @@
-@extends('layouts.sidebar')
+@extends('adminlte::page')
 
-@section('page-title', 'Edit Project Request')
+@section('title', 'Edit Project Request')
+
+@section('content_header')
+    <h1>Edit Project Request</h1>
+@stop
 
 @section('content')
 
-<h2 class="text-xl font-semibold mb-4">Edit Project Request</h2>
+<div class="card shadow-sm">
+    <div class="card-body">
 
-<form method="POST" action="{{ route('project-requests.update', $projectRequest->id) }}" class="space-y-4 bg-white p-6 shadow rounded">
-    @csrf @method('PUT')
+        @if($errors->any())
+            <div class="alert alert-danger">
+                <strong>There were some problems:</strong>
+                <ul>
+                    @foreach($errors->all() as $err)
+                        <li>{{ $err }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
 
-    <div>
-        <label class="font-semibold">Project Title</label>
-        <input type="text" name="project_title" value="{{ $projectRequest->project_title }}" class="w-full border p-2 rounded">
+        <form action="{{ route('project-requests.update', $projectRequest->id) }}" method="POST">
+            @csrf
+            @method('PUT')
+
+            <div class="form-group">
+                <label>Title</label>
+                <input type="text"
+                       name="title"
+                       class="form-control"
+                       value="{{ old('title', $projectRequest->title) }}"
+                       required>
+            </div>
+
+            <div class="form-group mt-3">
+                <label>Description</label>
+                <textarea name="description"
+                          class="form-control"
+                          rows="4">{{ old('description', $projectRequest->description) }}</textarea>
+            </div>
+
+            <div class="form-group mt-3">
+                <label>Required Skills</label>
+                <input type="text"
+                       name="required_skills"
+                       class="form-control"
+                       value="{{ old('required_skills', $projectRequest->required_skills) }}">
+            </div>
+
+            <div class="form-group mt-3">
+                <label>Max Members</label>
+                <input type="number"
+                       name="max_members"
+                       class="form-control"
+                       value="{{ old('max_members', $projectRequest->max_members) }}"
+                       min="1">
+            </div>
+
+            <div class="form-group mt-3">
+                <label>Location</label>
+                <input type="text"
+                       name="location"
+                       class="form-control"
+                       value="{{ old('location', $projectRequest->location) }}">
+            </div>
+
+            <div class="form-group mt-3">
+                <label>Meeting Time</label>
+                <input type="time"
+                       name="meeting_time"
+                       class="form-control"
+                       value="{{ old('meeting_time', $projectRequest->meeting_time ? \Carbon\Carbon::parse($projectRequest->meeting_time)->format('H:i') : '') }}">
+            </div>
+
+            <div class="form-group mt-3">
+                <label>Status</label>
+                <select name="status" class="form-control" required>
+                    <option value="open"   {{ old('status', $projectRequest->status) == 'open' ? 'selected' : '' }}>Open</option>
+                    <option value="closed" {{ old('status', $projectRequest->status) == 'closed' ? 'selected' : '' }}>Closed</option>
+                </select>
+            </div>
+
+            <button class="btn btn-primary mt-3">
+                <i class="fas fa-save"></i> Update
+            </button>
+        </form>
+
     </div>
+</div>
 
-    <div>
-        <label class="font-semibold">Description</label>
-        <textarea name="description" class="w-full border p-2 rounded">{{ $projectRequest->description }}</textarea>
-    </div>
-
-    <div>
-        <label class="font-semibold">Required Skills</label>
-        <input type="text" name="required_skills" value="{{ $projectRequest->required_skills }}" class="w-full border p-2 rounded">
-    </div>
-
-    <div>
-        <label class="font-semibold">Difficulty</label>
-        <select name="difficulty_level" class="w-full border p-2 rounded">
-            <option {{ $projectRequest->difficulty_level == 'Easy' ? 'selected' : '' }}>Easy</option>
-            <option {{ $projectRequest->difficulty_level == 'Medium' ? 'selected' : '' }}>Medium</option>
-            <option {{ $projectRequest->difficulty_level == 'Hard' ? 'selected' : '' }}>Hard</option>
-        </select>
-    </div>
-
-    <button class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
-        Update
-    </button>
-
-</form>
-
-@endsection
+@stop
