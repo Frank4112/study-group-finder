@@ -1,4 +1,4 @@
-@extends('layouts.admin')
+@extends('adminlte::page')
 
 @section('title', $studyGroup->name)
 @section('page-title', $studyGroup->name)

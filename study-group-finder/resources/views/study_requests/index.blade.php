@@ -1,19 +1,26 @@
-@extends('layouts.admin')
+@extends('adminlte::page')
 
 @section('title', 'Study Requests')
-@section('page-title', 'Study Requests')
+
+@section('content_header')
+    <h1>Study Requests</h1>
+@stop
 
 @section('content')
-<div class="bg-white shadow-md rounded-lg p-6">
-    <div class="flex justify-between mb-4">
-        <h2 class="text-xl font-semibold">Study Requests</h2>
+
+<div class="card shadow-sm">
+    <div class="card-header d-flex justify-content-between align-items-center">
+        <h3 class="card-title">Study Requests</h3>
 
         <a href="{{ route('study-requests.create') }}"
-           class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">
-            Add Request
+           class="btn btn-success">
+            <i class="fas fa-plus"></i> Add Request
         </a>
     </div>
 
-    <livewire:study-requests-table />
+    <div class="card-body">
+        <livewire:study-requests-table />
+    </div>
 </div>
-@endsection
+
+@stop

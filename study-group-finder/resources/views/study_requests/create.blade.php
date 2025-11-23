@@ -1,92 +1,83 @@
-@extends('layouts.admin')
+@extends('adminlte::page')
 
 @section('title', 'Create Study Request')
-@section('page-title', 'Create Study Request')
+
+@section('content_header')
+    <h1>Create Study Request</h1>
+@stop
 
 @section('content')
-<div class="bg-white shadow-md rounded-lg p-6">
 
-    @if(session('success'))
-        <div class="mb-4 p-3 bg-green-100 text-green-800 rounded">
-            {{ session('success') }}
-        </div>
-    @endif
+<div class="card shadow-sm">
+    <div class="card-body">
 
-    @if($errors->any())
-        <div class="mb-4 p-3 bg-red-100 text-red-800 rounded">
-            <strong>There were some problems:</strong>
-            <ul class="list-disc ml-5">
-                @foreach($errors->all() as $err)
-                    <li>{{ $err }}</li>
-                @endforeach
-            </ul>
-        </div>
-    @endif
+        @if($errors->any())
+            <div class="alert alert-danger">
+                <strong>There were some problems:</strong>
+                <ul>
+                    @foreach($errors->all() as $err)
+                        <li>{{ $err }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
 
-    <form action="{{ route('study-requests.store') }}" method="POST">
-        @csrf
+        <form action="{{ route('study-requests.store') }}" method="POST">
+            @csrf
 
-        <!-- Subject -->
-        <div class="mb-4">
-            <label class="block font-medium">Subject</label>
-            <input type="text"
-                name="subject"
-                value="{{ old('subject') }}"
-                class="w-full border px-3 py-2 rounded"
-                required>
-        </div>
+            <div class="form-group">
+                <label>Subject</label>
+                <input type="text"
+                       name="subject"
+                       class="form-control"
+                       required>
+            </div>
 
-        <!-- Course -->
-        <div class="mb-4">
-            <label class="block font-medium">Course</label>
-            <input type="text"
-                name="course"
-                value="{{ old('course') }}"
-                class="w-full border px-3 py-2 rounded"
-                required>
-        </div>
+            <div class="form-group mt-3">
+                <label>Course</label>
+                <input type="text"
+                       name="course"
+                       class="form-control"
+                       required>
+            </div>
 
-        <!-- Level -->
-        <div class="mb-4">
-            <label class="block font-medium">Level</label>
-            <select name="level" class="w-full border rounded px-3 py-2" required>
-                <option value="first_year"  {{ old('level')=='first_year' ? 'selected' : '' }}>First Year</option>
-                <option value="second_year" {{ old('level')=='second_year' ? 'selected' : '' }}>Second Year</option>
-                <option value="third_year"  {{ old('level')=='third_year' ? 'selected' : '' }}>Third Year</option>
-                <option value="fourth_year" {{ old('level')=='fourth_year' ? 'selected' : '' }}>Fourth Year</option>
-            </select>
-        </div>
+            <div class="form-group mt-3">
+                <label>Level</label>
+                <select name="level" class="form-control" required>
+                    <option value="first_year">First Year</option>
+                    <option value="second_year">Second Year</option>
+                    <option value="third_year">Third Year</option>
+                    <option value="fourth_year">Fourth Year</option>
+                </select>
+            </div>
 
-        <!-- Location -->
-        <div class="mb-4">
-            <label class="block font-medium">Location</label>
-            <input type="text"
-                name="location"
-                value="{{ old('location') }}"
-                class="w-full border px-3 py-2 rounded">
-        </div>
+            <div class="form-group mt-3">
+                <label>Location</label>
+                <input type="text"
+                       name="location"
+                       class="form-control">
+            </div>
 
-        <!-- Preferred Time -->
-        <div class="mb-4">
-            <label class="block font-medium">Preferred Time</label>
-            <input type="datetime-local"
-                name="preferred_time"
-                value="{{ old('preferred_time') }}"
-                class="w-full border px-3 py-2 rounded">
-        </div>
+            <div class="form-group mt-3">
+                <label>Preferred Time</label>
+                <input type="datetime-local"
+                       name="preferred_time"
+                       class="form-control">
+            </div>
 
-        <!-- Description -->
-        <div class="mb-4">
-            <label class="block font-medium">Description</label>
-            <textarea name="description"
-                class="w-full border px-3 py-2 rounded"
-                rows="4">{{ old('description') }}</textarea>
-        </div>
+            <div class="form-group mt-3">
+                <label>Description</label>
+                <textarea name="description"
+                          rows="4"
+                          class="form-control"></textarea>
+            </div>
 
-        <button class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
-            Create Request
-        </button>
-    </form>
+            <button class="btn btn-primary mt-3">
+                <i class="fas fa-save"></i> Save
+            </button>
+        </form>
 
+    </div>
 </div>
-@endsection
+
+@stop

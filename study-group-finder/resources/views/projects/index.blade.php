@@ -1,4 +1,4 @@
-@extends('layouts.sidebar')
+@extends('adminlte::page')
 
 @section('page-title', 'Project Requests')
 

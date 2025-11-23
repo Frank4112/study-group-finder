@@ -1,82 +1,133 @@
 <div>
-    <!-- Search + Filters -->
-    <div class="flex justify-between mb-4">
-        <input
-            type="text"
-            wire:model.live="search"
-            placeholder="Search by subject, course..."
-            class="border rounded px-3 py-2 w-1/3"
-        >
 
-        <select wire:model.live="level" class="border rounded px-3 py-2">
-            <option value="">Filter by Level</option>
-            <option value="first_year">First Year</option>
-            <option value="second_year">Second Year</option>
-            <option value="third_year">Third Year</option>
-            <option value="fourth_year">Fourth Year</option>
-        </select>
+    {{-- Search + Filters --}}
+    <div class="card">
+        <div class="card-header">
+            <div class="row">
+
+                {{-- SEARCH --}}
+                <div class="col-md-4">
+                    <input
+                        type="text"
+                        wire:model.live="search"
+                        class="form-control"
+                        placeholder="Search by subject, course..."
+                    >
+                </div>
+
+                {{-- LEVEL FILTER --}}
+                <div class="col-md-3">
+                    <select wire:model.live="level" class="form-control">
+                        <option value="">Filter by Level</option>
+                        <option value="first_year">First Year</option>
+                        <option value="second_year">Second Year</option>
+                        <option value="third_year">Third Year</option>
+                        <option value="fourth_year">Fourth Year</option>
+                    </select>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="card-body p-0">
+            <table class="table table-hover table-bordered mb-0">
+                <thead class="thead-light">
+                    <tr>
+
+                        {{-- SUBJECT --}}
+                        <th wire:click="sortBy('subject')" style="cursor:pointer;">
+                            Subject
+                            @if($sortField === 'subject')
+                                <i class="fas fa-sort-{{ $sortDirection === 'asc' ? 'up' : 'down' }}"></i>
+                            @endif
+                        </th>
+
+                        {{-- COURSE --}}
+                        <th wire:click="sortBy('course')" style="cursor:pointer;">
+                            Course
+                            @if($sortField === 'course')
+                                <i class="fas fa-sort-{{ $sortDirection === 'asc' ? 'up' : 'down' }}"></i>
+                            @endif
+                        </th>
+
+                        {{-- LEVEL --}}
+                        <th wire:click="sortBy('level')" style="cursor:pointer;">
+                            Level
+                            @if($sortField === 'level')
+                                <i class="fas fa-sort-{{ $sortDirection === 'asc' ? 'up' : 'down' }}"></i>
+                            @endif
+                        </th>
+
+                        <th>Description</th>
+                        <th>User</th>
+                        <th style="width: 180px;">Actions</th>
+                    </tr>
+                </thead>
+
+                <tbody>
+                    @forelse($studyRequests as $req)
+                        <tr>
+
+                            <td>{{ $req->subject }}</td>
+                            <td>{{ $req->course }}</td>
+
+                            <td>
+                                <span class="badge badge-info">
+                                    {{ ucfirst(str_replace('_',' ', $req->level)) }}
+                                </span>
+                            </td>
+
+                            <td>{{ \Illuminate\Support\Str::limit($req->description, 50) }}</td>
+
+                            <td>{{ $req->user->name }}</td>
+
+                            <td class="text-center">
+
+                                {{-- VIEW --}}
+                                <a href="{{ route('study-requests.show', $req->id) }}"
+                                   class="btn btn-sm btn-primary" title="View">
+                                   <i class="fas fa-eye"></i>
+                                </a>
+
+                                {{-- EDIT --}}
+                                <a href="{{ route('study-requests.edit', $req->id) }}"
+                                   class="btn btn-sm btn-warning" title="Edit">
+                                   <i class="fas fa-edit"></i>
+                                </a>
+
+                                {{-- DELETE --}}
+                                <form action="{{ route('study-requests.destroy', $req->id) }}"
+                                      method="POST"
+                                      class="d-inline"
+                                      onsubmit="return confirm('Delete this request?')">
+
+                                    @csrf
+                                    @method('DELETE')
+
+                                    <button class="btn btn-sm btn-danger" title="Delete">
+                                        <i class="fas fa-trash"></i>
+                                    </button>
+
+                                </form>
+
+                            </td>
+                        </tr>
+
+                    @empty
+                        <tr>
+                            <td colspan="6" class="text-center p-3 text-muted">
+                                No study requests found.
+                            </td>
+                        </tr>
+                    @endforelse
+                </tbody>
+
+            </table>
+        </div>
+
+        <div class="card-footer">
+            {{ $studyRequests->links() }}
+        </div>
     </div>
 
-    <!-- Table -->
-    <table class="w-full table-auto border-collapse border border-gray-200">
-        <thead class="bg-gray-50">
-            <tr>
-                <th wire:click="sortBy('subject')" class="border px-4 py-2 cursor-pointer">
-                    Subject
-                    @if($sortField === 'subject') ({{ strtoupper($sortDirection) }}) @endif
-                </th>
-
-                <th wire:click="sortBy('course')" class="border px-4 py-2 cursor-pointer">
-                    Course
-                    @if($sortField === 'course') ({{ strtoupper($sortDirection) }}) @endif
-                </th>
-
-                <th wire:click="sortBy('level')" class="border px-4 py-2 cursor-pointer">
-                    Level
-                    @if($sortField === 'level') ({{ strtoupper($sortDirection) }}) @endif
-                </th>
-
-                <th class="border px-4 py-2">Description</th>
-                <th class="border px-4 py-2">User</th>
-                <th class="border px-4 py-2">Actions</th>
-            </tr>
-        </thead>
-
-        <tbody>
-            @foreach($studyRequests as $req)
-            <tr class="hover:bg-gray-100">
-                <td class="border px-4 py-2">{{ $req->subject }}</td>
-                <td class="border px-4 py-2">{{ $req->course }}</td>
-
-                <!-- Corrected Level Display -->
-                <td class="border px-4 py-2">
-                    {{ ucfirst(str_replace('_',' ', $req->level)) }}
-                </td>
-
-                <td class="border px-4 py-2">{{ $req->description }}</td>
-                <td class="border px-4 py-2">{{ $req->user->name }}</td>
-
-                <td class="border px-4 py-2 flex gap-2">
-                    <a href="{{ route('study-requests.show', $req->id) }}"
-                       class="text-green-600 hover:underline">View</a>
-
-                    <a href="{{ route('study-requests.edit', $req->id) }}"
-                       class="text-blue-600 hover:underline">Edit</a>
-
-                    <form action="{{ route('study-requests.destroy', $req->id) }}"
-                          method="POST"
-                          onsubmit="return confirm('Delete this?')">
-                        @csrf
-                        @method('DELETE')
-                        <button class="text-red-600 hover:underline">Delete</button>
-                    </form>
-                </td>
-            </tr>
-            @endforeach
-        </tbody>
-    </table>
-
-    <div class="mt-4">
-        {{ $studyRequests->links() }}
-    </div>
 </div>

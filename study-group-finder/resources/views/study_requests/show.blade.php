@@ -1,85 +1,67 @@
-@extends('layouts.admin')
+@extends('adminlte::page')
 
-@section('title', $studyGroup->name)
-@section('page-title', $studyGroup->name)
+@section('title', 'Study Request Details')
+
+@section('content_header')
+    <h1>Study Request Details</h1>
+@stop
 
 @section('content')
-<div class="bg-white shadow-md rounded-lg p-6 space-y-4">
 
-    @if(session('success'))
-        <div class="p-3 bg-green-100 text-green-800 rounded">
-            {{ session('success') }}
-        </div>
-    @endif
-
-    <div>
-        <h2 class="text-xl font-semibold">{{ $studyGroup->name }}</h2>
-        <p class="text-gray-600">
-            Subject: {{ $studyGroup->subject }} |
-            Course: {{ $studyGroup->course }} |
-            Level: {{ ucfirst(str_replace('_', ' ', $studyGroup->level)) }}
-        </p>
-        <p class="text-gray-600">
-            Created by: {{ $studyGroup->creator->name }}
-        </p>
+<div class="card shadow-sm">
+    <div class="card-header">
+        <h3 class="card-title">
+            {{ $studyRequest->subject }}
+            ({{ ucfirst(str_replace('_',' ', $studyRequest->level)) }})
+        </h3>
     </div>
 
-    <div>
-        <h3 class="font-semibold mb-2">Members</h3>
-        <ul class="list-disc ml-6">
-            @foreach($studyGroup->users as $user)
-                <li>{{ $user->name }} ({{ $user->email }})</li>
-            @endforeach
-        </ul>
-    </div>
+    <div class="card-body">
 
-    <div class="flex gap-3">
-        <form action="{{ route('study-groups.join', $studyGroup->id) }}" method="POST">
-            @csrf
-            <button class="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700">
-                Join Group
-            </button>
-        </form>
+        <p><strong>Subject:</strong> {{ $studyRequest->subject }}</p>
+        <p><strong>Course:</strong> {{ $studyRequest->course }}</p>
+        <p><strong>Level:</strong> {{ ucfirst(str_replace('_', ' ', $studyRequest->level)) }}</p>
 
-        <form action="{{ route('study-groups.leave', $studyGroup->id) }}" method="POST">
-            @csrf
-            <button class="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700">
-                Leave Group
-            </button>
-        </form>
-    </div>
-
-    <hr>
-
-    <div>
-        <h3 class="font-semibold mb-2">Group Chat</h3>
-
-        <div class="max-h-64 overflow-y-auto border rounded p-3 mb-3 bg-gray-50">
-            @forelse($studyGroup->messages as $message)
-                <div class="mb-2">
-                    <span class="font-semibold">{{ $message->user->name }}</span>
-                    <span class="text-xs text-gray-500">
-                        ({{ $message->created_at->format('Y-m-d H:i') }})
-                    </span>
-                    <p>{{ $message->body }}</p>
-                </div>
-            @empty
-                <p class="text-gray-500">No messages yet.</p>
-            @endforelse
+        <p><strong>Description:</strong></p>
+        <div class="border p-3 rounded bg-light mb-3">
+            {{ $studyRequest->description }}
         </div>
 
-        <form action="{{ route('study-groups.messages.store', $studyGroup->id) }}" method="POST">
-            @csrf
-            <textarea name="body" class="w-full border rounded px-3 py-2 mb-2"
-                      rows="3" placeholder="Type your message..." required></textarea>
-            <button class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
-                Send Message
-            </button>
-        </form>
+        <p><strong>Location:</strong> {{ $studyRequest->location ?? 'Not specified' }}</p>
+
+        <p><strong>Preferred Time:</strong>
+            {{ $studyRequest->preferred_time ?? 'Not specified' }}
+        </p>
+
+        <p class="mt-3"><strong>Requested By:</strong> {{ $studyRequest->user->name }}</p>
+        <p><strong>Created:</strong> {{ $studyRequest->created_at->diffForHumans() }}</p>
+
     </div>
 
-    <a href="{{ route('study-groups.index') }}" class="text-blue-600 underline">
-        ← Back to Study Groups
-    </a>
+    <div class="card-footer">
+
+        <a href="{{ route('study-requests.index') }}" class="btn btn-secondary">
+            <i class="fas fa-arrow-left"></i> Back
+        </a>
+
+        <a href="{{ route('study-requests.edit', $studyRequest->id) }}" class="btn btn-warning">
+            <i class="fas fa-edit"></i> Edit
+        </a>
+
+        <form action="{{ route('study-requests.destroy', $studyRequest->id) }}"
+              method="POST"
+              class="d-inline"
+              onsubmit="return confirm('Delete this study request?')">
+
+            @csrf
+            @method('DELETE')
+
+            <button class="btn btn-danger">
+                <i class="fas fa-trash"></i> Delete
+            </button>
+        </form>
+
+    </div>
 </div>
-@endsection
+
+@stop

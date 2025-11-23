@@ -1,4 +1,4 @@
-@extends('layouts.admin')
+@extends('adminlte::page')
 
 @section('title', 'My Study Groups')
 @section('page-title', 'My Study Groups')

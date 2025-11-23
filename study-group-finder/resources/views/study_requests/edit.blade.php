@@ -1,96 +1,86 @@
-@extends('layouts.admin')
+@extends('adminlte::page')
 
 @section('title', 'Edit Study Request')
-@section('page-title', 'Edit Study Request')
+
+@section('content_header')
+    <h1>Edit Study Request</h1>
+@stop
 
 @section('content')
-<div class="bg-white shadow-md rounded-lg p-6">
 
-    @if($errors->any())
-        <div class="mb-4 p-3 bg-red-100 text-red-800 rounded">
-            <strong>There were some problems:</strong>
-            <ul class="list-disc ml-5">
-                @foreach($errors->all() as $err)
-                    <li>{{ $err }}</li>
-                @endforeach
-            </ul>
-        </div>
-    @endif
+<div class="card shadow-sm">
+    <div class="card-body">
 
-    <form action="{{ route('study-requests.update', $studyRequest->id) }}" method="POST">
-        @csrf
-        @method('PUT')
+        @if($errors->any())
+            <div class="alert alert-danger">
+                <strong>There were some problems:</strong>
+                <ul>
+                    @foreach($errors->all() as $err)
+                        <li>{{ $err }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
 
-        <!-- Subject -->
-        <div class="mb-4">
-            <label class="block font-medium">Subject</label>
-            <input type="text" name="subject"
-                   value="{{ old('subject', $studyRequest->subject) }}"
-                   class="w-full border px-3 py-2 rounded" required>
-        </div>
+        <form action="{{ route('study-requests.update', $studyRequest->id) }}" method="POST">
+            @csrf
+            @method('PUT')
 
-        <!-- Course -->
-        <div class="mb-4">
-            <label class="block font-medium">Course</label>
-            <input type="text" name="course"
-                   value="{{ old('course', $studyRequest->course) }}"
-                   class="w-full border px-3 py-2 rounded" required>
-        </div>
+            <div class="form-group">
+                <label>Subject</label>
+                <input type="text"
+                       name="subject"
+                       class="form-control"
+                       value="{{ old('subject', $studyRequest->subject) }}"
+                       required>
+            </div>
 
-        <!-- Level -->
-        <div class="mb-4">
-            <label class="block font-medium">Level</label>
-            <select name="level" class="w-full border px-3 py-2 rounded" required>
-                <option value="first_year"
-                    {{ old('level', $studyRequest->level)=='first_year'?'selected':'' }}>
-                    First Year
-                </option>
+            <div class="form-group mt-3">
+                <label>Course</label>
+                <input type="text"
+                       name="course"
+                       class="form-control"
+                       value="{{ old('course', $studyRequest->course) }}"
+                       required>
+            </div>
 
-                <option value="second_year"
-                    {{ old('level', $studyRequest->level)=='second_year'?'selected':'' }}>
-                    Second Year
-                </option>
+            <div class="form-group mt-3">
+                <label>Level</label>
+                <select name="level" class="form-control">
+                    <option value="first_year"  {{ old('level', $studyRequest->level) == 'first_year' ? 'selected' : '' }}>First Year</option>
+                    <option value="second_year" {{ old('level', $studyRequest->level) == 'second_year' ? 'selected' : '' }}>Second Year</option>
+                    <option value="third_year"  {{ old('level', $studyRequest->level) == 'third_year' ? 'selected' : '' }}>Third Year</option>
+                    <option value="fourth_year" {{ old('level', $studyRequest->level) == 'fourth_year' ? 'selected' : '' }}>Fourth Year</option>
+                </select>
+            </div>
 
-                <option value="third_year"
-                    {{ old('level', $studyRequest->level)=='third_year'?'selected':'' }}>
-                    Third Year
-                </option>
+            <div class="form-group mt-3">
+                <label>Location</label>
+                <input type="text"
+                       name="location"
+                       class="form-control"
+                       value="{{ old('location', $studyRequest->location) }}">
+            </div>
 
-                <option value="fourth_year"
-                    {{ old('level', $studyRequest->level)=='fourth_year'?'selected':'' }}>
-                    Fourth Year
-                </option>
-            </select>
-        </div>
+            <div class="form-group mt-3">
+                <label>Preferred Time</label>
+                <input type="datetime-local"
+                       name="preferred_time"
+                       class="form-control"
+                       value="{{ old('preferred_time', optional($studyRequest->preferred_time)->format('Y-m-d\TH:i')) }}">
+            </div>
 
-        <!-- Location -->
-        <div class="mb-4">
-            <label class="block font-medium">Location</label>
-            <input type="text" name="location"
-                   value="{{ old('location', $studyRequest->location) }}"
-                   class="w-full border px-3 py-2 rounded">
-        </div>
+            <div class="form-group mt-3">
+                <label>Description</label>
+                <textarea name="description" rows="4" class="form-control">{{ old('description', $studyRequest->description) }}</textarea>
+            </div>
 
-        <!-- Preferred Time -->
-        <div class="mb-4">
-            <label class="block font-medium">Preferred Time</label>
-            <input type="datetime-local" name="preferred_time"
-                   value="{{ old('preferred_time', $studyRequest->preferred_time ? $studyRequest->preferred_time->format('Y-m-d\TH:i') : '') }}"
-                   class="w-full border px-3 py-2 rounded">
-        </div>
+            <button class="btn btn-primary mt-3">
+                <i class="fas fa-save"></i> Update
+            </button>
+        </form>
 
-        <!-- Description -->
-        <div class="mb-4">
-            <label class="block font-medium">Description</label>
-            <textarea name="description"
-                      class="w-full border px-3 py-2 rounded"
-                      rows="4">{{ old('description', $studyRequest->description) }}</textarea>
-        </div>
-
-        <button class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
-            Update Request
-        </button>
-    </form>
-
+    </div>
 </div>
-@endsection
+
+@stop
