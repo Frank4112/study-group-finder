@@ -18,6 +18,7 @@ use App\Http\Controllers\MessageController;
 
 use App\Http\Controllers\ProjectsController;
 use App\Http\Controllers\Auth\AuthenticatedSessionController;
+use App\Http\Controllers\SkillRequestController;
 
 /*
 |--------------------------------------------------------------------------
@@ -102,7 +103,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
     Route::resource('project-requests', ProjectRequestController::class);
     Route::resource('projects', ProjectsController::class);
     Route::resource('skills', SkillController::class);
-
+    Route::resource('skill-requests', SkillRequestController::class);
 
     /*
     |--------------------------------------------------------------------------
