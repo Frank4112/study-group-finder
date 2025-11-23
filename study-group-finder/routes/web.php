@@ -57,6 +57,7 @@ Route::middleware(['auth', 'verified'])->group(function () {
 
     Route::delete('/profile', [ProfileController::class, 'destroy'])
         ->name('profile.destroy');
+        
 
 
     /*
@@ -125,6 +126,9 @@ Route::middleware(['auth', 'verified'])->group(function () {
         'study-groups/{studyGroup}/messages',
         [MessageController::class, 'store']
     )->name('study-groups.messages.store');
+    Route::get('my-study-groups', [StudyGroupController::class, 'myGroups'])
+    ->name('study-groups.my');
+
 
 
     /*
