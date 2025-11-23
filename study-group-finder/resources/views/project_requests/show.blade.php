@@ -10,13 +10,10 @@
 
 <div class="card shadow-sm">
     <div class="card-header">
-        <h3 class="card-title">
-            {{ $projectRequest->title }}
-        </h3>
+        <h3 class="card-title">{{ $projectRequest->title }}</h3>
     </div>
 
     <div class="card-body">
-
         <p><strong>Title:</strong> {{ $projectRequest->title }}</p>
 
         <p><strong>Description:</strong></p>
@@ -25,48 +22,38 @@
         </div>
 
         <p><strong>Required Skills:</strong> {{ $projectRequest->required_skills ?? '-' }}</p>
-
         <p><strong>Max Members:</strong> {{ $projectRequest->max_members ?? '-' }}</p>
-
         <p><strong>Location:</strong> {{ $projectRequest->location ?? '-' }}</p>
-
-        <p><strong>Meeting Time:</strong>
-            @if($projectRequest->meeting_time)
-                {{ \Carbon\Carbon::parse($projectRequest->meeting_time)->format('H:i') }}
-            @else
-                -
-            @endif
+        <p><strong>Meeting Time:</strong> 
+            {{ $projectRequest->meeting_time ? \Carbon\Carbon::parse($projectRequest->meeting_time)->format('H:i') : '-' }}
         </p>
 
-        <p>
-            <strong>Status:</strong>
+        <p><strong>Status:</strong> 
             <span class="badge {{ $projectRequest->status === 'open' ? 'badge-success' : 'badge-secondary' }}">
                 {{ ucfirst($projectRequest->status) }}
             </span>
         </p>
 
         <p><strong>Owner:</strong> {{ $projectRequest->user->name ?? 'Unknown' }}</p>
-
         <p><strong>Created:</strong> {{ $projectRequest->created_at?->diffForHumans() }}</p>
     </div>
 
-    <div class="card-footer">
+    <div class="card-footer d-flex gap-2">
         <a href="{{ route('project-requests.index') }}" class="btn btn-secondary">
             <i class="fas fa-arrow-left"></i> Back
         </a>
 
-        <a href="{{ route('project-requests.edit', $projectRequest->id) }}" class="btn btn-warning">
-            <i class="fas fa-edit"></i> Edit
-        </a>
-
-        <form action="{{ route('project-requests.destroy', $projectRequest->id) }}"
-              method="POST"
-              class="d-inline"
-              onsubmit="return confirm('Delete this project request?')">
+        <form action="{{ route('project-requests.destroy', $projectRequest->id) }}" method="POST" onsubmit="return confirm('Delete this project request?')">
             @csrf
             @method('DELETE')
-            <button class="btn btn-danger">
-                <i class="fas fa-trash"></i> Delete
+            <button class="btn btn-danger"><i class="fas fa-trash"></i> Delete</button>
+        </form>
+
+        <form action="{{ route('project-requests.like', $projectRequest->id) }}" method="POST" class="d-inline">
+            @csrf
+            <button type="submit" class="btn btn-success" 
+                {{ $projectRequest->likedBy(Auth::user()) ? 'disabled' : '' }}>
+                <i class="fas fa-thumbs-up"></i> {{ $projectRequest->likes()->count() }}
             </button>
         </form>
     </div>

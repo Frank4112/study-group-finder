@@ -5,6 +5,7 @@ namespace App\Livewire;
 use Livewire\Component;
 use Livewire\WithPagination;
 use App\Models\ProjectRequest;
+use Illuminate\Support\Facades\Auth;
 
 class ProjectRequestsTable extends Component
 {
@@ -16,22 +17,11 @@ class ProjectRequestsTable extends Component
     public $sortDirection = 'asc';
 
     protected $updatesQueryString = [
-        'search',
-        'status',
-        'sortField',
-        'sortDirection',
-        'page',
+        'search', 'status', 'sortField', 'sortDirection', 'page',
     ];
 
-    public function updatingSearch()
-    {
-        $this->resetPage();
-    }
-
-    public function updatingStatus()
-    {
-        $this->resetPage();
-    }
+    public function updatingSearch() { $this->resetPage(); }
+    public function updatingStatus() { $this->resetPage(); }
 
     public function sortBy($field)
     {
@@ -43,18 +33,35 @@ class ProjectRequestsTable extends Component
         }
     }
 
+    // Like / Unike function
+    public function like($projectId)
+    {
+        $project = ProjectRequest::findOrFail($projectId);
+        $user = Auth::user();
+
+        if ($project->likes()->where('user_id', $user->id)->exists()) {
+            // Unlike
+            $project->likes()->detach($user->id);
+            $user->decrement('points', 5);
+            session()->flash('success', 'You unaccepted this project. Points removed.');
+        } else {
+            // Like
+            $project->likes()->attach($user->id);
+            $user->increment('points', 5);
+            session()->flash('success', 'You accepted this project. Points added!');
+        }
+    }
+
     public function render()
     {
         $projects = ProjectRequest::with('user')
-            ->when($this->search, function ($q) {
-                $q->where(function ($query) {
-                    $query->where('title', 'like', "%{$this->search}%")
-                          ->orWhere('description', 'like', "%{$this->search}%")
-                          ->orWhere('required_skills', 'like', "%{$this->search}%")
-                          ->orWhere('location', 'like', "%{$this->search}%");
-                });
+            ->when($this->search, function($q) {
+                $q->where('title', 'like', "%{$this->search}%")
+                  ->orWhere('description', 'like', "%{$this->search}%")
+                  ->orWhere('required_skills', 'like', "%{$this->search}%")
+                  ->orWhere('location', 'like', "%{$this->search}%");
             })
-            ->when($this->status, fn ($q) => $q->where('status', $this->status))
+            ->when($this->status, fn($q) => $q->where('status', $this->status))
             ->orderBy($this->sortField, $this->sortDirection)
             ->paginate(10);
 
