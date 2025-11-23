@@ -44,15 +44,14 @@ class StudyGroupController extends Controller
     }
     public function myGroups()
 {
-    $groups = auth()->user()
-        ->studyGroups()
-        ->with('creator')
+    $user = Auth::user();
+    $groups = $user->studyGroups()
         ->withCount('members')
         ->orderBy('created_at', 'desc')
-        ->get();
+        ->paginate(10);
 
     return view('study_groups.my_groups', compact('groups'));
-}
 
     
+}
 }
