@@ -235,7 +235,9 @@ return [
             'icon' => 'fas fa-users',
         ],
 
-        // MESSAGES REMOVED
+        // Messages removed
+        // Logout removed completely
+        // Nothing else changed
 
         ['header' => 'USER SETTINGS'],
 
@@ -249,13 +251,6 @@ return [
             'text' => 'Settings',
             'url'  => 'settings',
             'icon' => 'fas fa-cog',
-        ],
-
-        [
-            'text'    => 'Logout',
-            'route'   => 'logout',
-            'icon'    => 'fas fa-sign-out-alt',
-            'method'  => 'post',
         ],
     ],
 
