@@ -27,12 +27,14 @@ class StudyMatchService
             return null;
         }
 
+        // IMPORTANT FIX: link the group to this StudyRequest
         $group = StudyGroup::create([
-            'name'       => $request->subject . ' - ' . ucfirst(str_replace('_', ' ', $request->level)) . ' Group',
-            'subject'    => $request->subject,
-            'course'     => $request->course,
-            'level'      => $request->level,
-            'creator_id' => $request->user_id,
+            'name'             => $request->subject . ' - ' . ucfirst(str_replace('_', ' ', $request->level)) . ' Group',
+            'subject'          => $request->subject,
+            'course'           => $request->course,
+            'level'            => $request->level,
+            'creator_id'       => $request->user_id,
+            'study_request_id' => $request->id,   // FIXED: links group to the request
         ]);
 
         // Add creator
@@ -41,7 +43,7 @@ class StudyMatchService
             'user_id'        => $request->user_id,
         ]);
 
-        // Add matches
+        // Add matched members
         foreach ($matches as $m) {
             StudyGroupMember::firstOrCreate([
                 'study_group_id' => $group->id,
@@ -79,8 +81,9 @@ class StudyMatchService
                 continue;
             }
 
-            // Check if group already exists for this combo
             [$subject, $course, $level] = explode('|', $key);
+
+            // If a group already exists for these parameters, skip
             $existing = StudyGroup::where('subject', $subject)
                 ->where('course', $course)
                 ->where('level', $level)
@@ -92,12 +95,14 @@ class StudyMatchService
 
             $first = $bucket->first();
 
+            // Auto create group (global)
             $group = StudyGroup::create([
-                'name'       => $subject . ' - ' . ucfirst(str_replace('_', ' ', $level)) . ' Auto Group',
-                'subject'    => $subject,
-                'course'     => $course,
-                'level'      => $level,
-                'creator_id' => $first->user_id,
+                'name'             => $subject . ' - ' . ucfirst(str_replace('_', ' ', $level)) . ' Auto Group',
+                'subject'          => $subject,
+                'course'           => $course,
+                'level'            => $level,
+                'creator_id'       => $first->user_id,
+                'study_request_id' => $first->id,   // ensure linking
             ]);
 
             foreach ($bucket as $req) {

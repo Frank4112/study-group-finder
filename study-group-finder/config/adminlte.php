@@ -235,11 +235,7 @@ return [
             'icon' => 'fas fa-users',
         ],
 
-        [
-            'text' => 'Messages',
-            'url'  => 'study-groups', // Messages exist *inside* study groups
-            'icon' => 'fas fa-envelope',
-        ],
+        // MESSAGES REMOVED
 
         ['header' => 'USER SETTINGS'],
 

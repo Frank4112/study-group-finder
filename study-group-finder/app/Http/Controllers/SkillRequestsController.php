@@ -41,7 +41,7 @@ class SkillRequestController extends Controller
         'description' => 'nullable|string',
     ]);
 
-    $data['user_id'] = auth()->id(); // Assign the logged-in user
+    $data['user_id'] = Auth::id(); // Assign the logged-in user
 
     \App\Models\SkillRequest::create($data);
 

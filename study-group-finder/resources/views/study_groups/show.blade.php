@@ -19,14 +19,12 @@
         </div>
     @endif
 
-
     {{-- Group Header --}}
     <h2 class="text-2xl font-semibold mb-4">
         {{ $studyGroup->name }}
     </h2>
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-
         <div>
             <p><strong>Subject:</strong> {{ $studyGroup->subject }}</p>
             <p><strong>Course:</strong> {{ $studyGroup->course }}</p>
@@ -40,29 +38,34 @@
             <p><strong>Members:</strong> {{ $studyGroup->users->count() }}</p>
             <p><strong>Created At:</strong> {{ $studyGroup->created_at }}</p>
         </div>
-
     </div>
-
 
     {{-- JOIN / LEAVE BUTTON --}}
     <div class="mb-6">
+
+        {{-- DEBUG: SHOW MEMBER IDS --}}
+        {{-- <pre>{{ json_encode($studyGroup->users->pluck('id')) }}</pre> --}}
+
         @if(!$studyGroup->users->contains(auth()->id()))
+            {{-- Join Button --}}
             <form action="{{ route('study-groups.join', $studyGroup->id) }}" method="POST">
                 @csrf
                 <button class="px-4 py-2 bg-green-600 text-white rounded hover:bg-green-700">
                     Join Group
                 </button>
             </form>
+
         @else
+            {{-- Leave Button --}}
             <form action="{{ route('study-groups.leave', $studyGroup->id) }}" method="POST">
                 @csrf
                 <button class="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700">
                     Leave Group
                 </button>
             </form>
+
         @endif
     </div>
-
 
     {{-- MEMBERS --}}
     <h3 class="text-xl font-semibold mb-2">Group Members</h3>
@@ -72,7 +75,6 @@
             <li>{{ $member->name }}</li>
         @endforeach
     </ul>
-
 
     {{-- CHAT --}}
     <h3 class="text-xl font-semibold mb-4">Group Chat</h3>
@@ -97,7 +99,6 @@
         @endforelse
 
     </div>
-
 
     {{-- SEND MESSAGE --}}
     @if($studyGroup->users->contains(auth()->id()))

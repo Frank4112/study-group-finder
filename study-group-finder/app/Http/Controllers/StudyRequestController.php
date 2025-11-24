@@ -158,4 +158,29 @@ return redirect()
             ->route('study-groups.show', $group->id)
             ->with('success', 'Study group created successfully.');
     }
+    //joining a group
+    public function joinGroup(StudyRequest $studyRequest)
+{
+    $this->authorize('view', $studyRequest);
+
+    $user = Auth::user();
+
+    // Ensure request has a group
+    if (! $studyRequest->group) {
+        return back()->with('error', 'This study request is not linked to any study group.');
+    }
+
+    $group = $studyRequest->group;
+
+    // Prevent duplicate joining
+    if ($group->users()->where('user_id', $user->id)->exists()) {
+        return back()->with('info', 'You are already a member of this study group.');
+    }
+
+    // Join the group
+    $group->users()->attach($user->id);
+
+    return back()->with('success', 'You have joined this study group successfully.');
+}
+
 }

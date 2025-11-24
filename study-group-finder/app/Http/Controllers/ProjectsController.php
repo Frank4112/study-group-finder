@@ -2,69 +2,135 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\ProjectRequest;
-use App\Http\Requests\StoreProjectRequest;
-use App\Http\Requests\UpdateProjectRequest;
-use App\Http\Controllers\Controller;
+use App\Models\ProjectJoinRequest;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
-class ProjectsController extends Controller
+
+class ProjectRequestsController extends Controller
 {
     /**
-     * Display a listing of the resource.
+     * Display a paginated list of project requests.
      */
     public function index()
-{
-    $projects = \App\Models\Project::with('creator')->orderBy('id', 'desc')->paginate(10);
-    return view('projects.index', compact('projects'));
-}
+    {
+        $projects = ProjectRequest::with('user')
+            ->latest()
+            ->paginate(10);
 
+        return view('project_requests.index', compact('projects'));
+    }
 
     /**
-     * Show the form for creating a new resource.
+     * Show form to create a project request.
      */
     public function create()
     {
-        //
+        return view('project_requests.create');
     }
 
     /**
-     * Store a newly created resource in storage.
+     * Store a new project request.
      */
     public function store(Request $request)
     {
-        //
+        $data = $request->validate([
+            'title'       => 'required|string|max:255',
+            'category'    => 'nullable|string|max:255',
+            'description' => 'required|string',
+        ]);
+
+        $project = ProjectRequest::create([
+            'title'       => $data['title'],
+            'category'    => $data['category'] ?? null,
+            'description' => $data['description'],
+            'user_id'     => Auth::id(),
+        ]);
+
+        return redirect()
+            ->route('project-requests.index')
+            ->with('success', 'Project request created successfully.');
     }
 
     /**
-     * Display the specified resource.
+     * Display a single project request.
      */
-    public function show(string $id)
+    public function show(ProjectRequest $projectRequest)
     {
-        //
+        $projectRequest->load([
+            'user',
+            'joinRequests.user',
+        ]);
+
+        return view('project_requests.show', compact('projectRequest'));
     }
 
     /**
-     * Show the form for editing the specified resource.
+     * Show form to edit a project request.
      */
-    public function edit(string $id)
+    public function edit(ProjectRequest $projectRequest)
     {
-        //
+        if ($projectRequest->user_id !== Auth::id()) {
+            abort(403, 'Unauthorized');
+        }
+
+        return view('project_requests.edit', compact('projectRequest'));
     }
 
     /**
-     * Update the specified resource in storage.
+     * Update a project request.
      */
-    public function update(Request $request, string $id)
+    public function update(Request $request, ProjectRequest $projectRequest)
     {
-        //
+        if ($projectRequest->user_id !== Auth::id()) {
+            abort(403, 'Unauthorized');
+        }
+
+        $data = $request->validate([
+            'title'       => 'required|string|max:255',
+            'category'    => 'nullable|string|max:255',
+            'description' => 'required|string',
+        ]);
+
+        $projectRequest->update($data);
+
+        return redirect()
+            ->route('project-requests.show', $projectRequest->id)
+            ->with('success', 'Project request updated successfully.');
     }
 
     /**
-     * Remove the specified resource from storage.
+     * Delete a project request.
      */
-    public function destroy(string $id)
+    public function destroy(ProjectRequest $projectRequest)
     {
-        //
+        if ($projectRequest->user_id !== Auth::id()) {
+            abort(403, 'Unauthorized');
+        }
+
+        $projectRequest->delete();
+
+        return redirect()
+            ->route('project-requests.index')
+            ->with('success', 'Project request deleted.');
+    }
+
+    /**
+     * Like a project request.
+     */
+    public function like(ProjectRequest $projectRequest)
+    {
+        $user = Auth::user();
+
+        if ($projectRequest->likes()->where('user_id', $user->id)->exists()) {
+            return back()->with('error', 'You have already liked this project.');
+        }
+
+        $projectRequest->likes()->create([
+            'user_id' => $user->id
+        ]);
+
+        return back()->with('success', 'You liked this project.');
     }
 }

@@ -27,4 +27,9 @@ class StudyRequest extends Model
     {
         return $this->belongsTo(\App\Models\User::class);
     }
+    public function group()
+{
+    return $this->hasOne(\App\Models\StudyGroup::class, 'study_request_id');
+}
+
 }

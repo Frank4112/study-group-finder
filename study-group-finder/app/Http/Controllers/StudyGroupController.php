@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\StudyGroup;
 use Illuminate\Support\Facades\Auth;
 
+
 class StudyGroupController extends Controller
 {
     public function index()
@@ -42,9 +43,27 @@ class StudyGroupController extends Controller
 
         return back()->with('success', 'You left the study group.');
     }
+
+    public function destroy(StudyGroup $studyGroup)
+{
+    // Only the creator can delete the group
+    if ($studyGroup->creator_id !== Auth::id()) {
+        return back()->with('error', 'Only the group creator can delete this group.');
+    }
+
+    // Delete the group
+    $studyGroup->delete();
+
+    return redirect()
+        ->route('study-groups.index')
+        ->with('success', 'Study group deleted successfully.');
+}
+
+
     public function myGroups()
 {
-    $groups = auth()->user()
+    $user = Auth::user();
+    $groups = $user 
         ->studyGroups()
         ->with('creator')
         ->withCount('members')

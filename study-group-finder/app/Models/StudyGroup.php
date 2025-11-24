@@ -53,4 +53,8 @@ class StudyGroup extends Model
     {
         return $this->users();
     }
+    public function studyRequest()
+{
+    return $this->belongsTo(\App\Models\StudyRequest::class, 'study_request_id');
+}
 }

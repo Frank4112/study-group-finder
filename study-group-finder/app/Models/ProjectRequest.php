@@ -34,4 +34,9 @@ class ProjectRequest extends Model
     {
         return $this->likes()->where('user_id', $user->id)->exists();
     }
+    public function joinRequests()
+{
+    return $this->hasMany(ProjectJoinRequest::class);
+}
+
 }
